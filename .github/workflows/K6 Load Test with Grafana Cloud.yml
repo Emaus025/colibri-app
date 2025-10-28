@@ -1,0 +1,17 @@
+name: K6 Load Test with Grafana Cloud
+
+on: [push, workflow_dispatch]
+
+jobs:
+  k6-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Run K6 with Grafana Cloud
+        uses: grafana/k6-action@v0.3.0
+        with:
+          filename: k6/script.js
+          flags: --out cloud
+        env:
+          K6_CLOUD_TOKEN: ${{ secrets.GRAFANA_CLOUD_TOKEN }}
