@@ -16,3 +16,6 @@ jobs:
         uses: grafana/k6-action@v0.3.0
         with:
           filename: k6/script.js
+          flags: --out cloud
+        env:
+          K6_CLOUD_TOKEN: ${{ secrets.GRAFANA_CLOUD_TOKEN }}
