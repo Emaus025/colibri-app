@@ -4,18 +4,16 @@ on:
   push:
     branches: [ main ]
   workflow_dispatch:
-
 jobs:
   k6-test:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-      - name: Run K6 load test in Grafana Cloud
+      - name: Run K6 with Grafana Cloud
         uses: grafana/k6-action@v0.3.0
-        env:
-          K6_CLOUD_TOKEN: ${{ secrets.GRAFANA_CLOUD_TOKEN2 }}
         with:
           filename: k6/script.js
           flags: --out cloud
+        env:
+          K6_CLOUD_TOKEN: ${{ secrets.GRAFANA_CLOUD_TOKEN }}
