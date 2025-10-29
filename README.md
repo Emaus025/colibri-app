@@ -1,9 +1,9 @@
-# 🚗 Backend Colibrí - Documentación
+# Backend Colibrí - Documentación
 
-## 📋 Descripción
+## Descripción
 Backend para la aplicación de viajes compartidos Colibrí (similar a BlaBlaCar) desarrollado en Node.js con Express y Supabase.
 
-## 🚀 Instalación y Configuración
+## Instalación y Configuración
 
 ```bash
 # Instalar dependencias
@@ -20,12 +20,12 @@ npm run dev
 npm start
 ```
 
-## 🌐 Base URL
+## Base URL
 ```
 http://localhost:3001/api
 ```
 
-## 🔐 Autenticación
+## Autenticación
 
 ### Registro de Usuario
 **POST** `/auth/registro`
@@ -83,7 +83,7 @@ http://localhost:3001/api
 }
 ```
 
-## 🛣️ Viajes
+## Viajes
 
 ### Crear Viaje (Conductores)
 **POST** `/viajes`
@@ -133,7 +133,7 @@ http://localhost:3001/api
 ### Obtener Detalles de Viaje
 **GET** `/viajes/:id`
 
-## 📅 Reservas
+## Reservas
 
 ### Crear Reserva
 **POST** `/reservas`
@@ -174,7 +174,7 @@ http://localhost:3001/api
 **GET** `/reservas/mis-reservas`
 **Headers:** `Authorization: fake-jwt-token-for-123`
 
-## 🩺 Health Check
+## Health Check
 
 ### Verificar Estado del Servicio
 **GET** `/salud`
@@ -192,7 +192,7 @@ http://localhost:3001/api
 ### Probar Conexión a Base de Datos
 **GET** `/test-db`
 
-## ⚠️ Códigos de Error
+## Códigos de Error
 
 - `200` - Éxito
 - `400` - Datos inválidos
@@ -201,7 +201,7 @@ http://localhost:3001/api
 - `409` - Conflicto (usuario ya existe)
 - `500` - Error interno del servidor
 
-## 🔒 Headers Requeridos
+## Headers Requeridos
 
 Para endpoints protegidos:
 ```http
@@ -209,7 +209,7 @@ Authorization: fake-jwt-token-for-123
 Content-Type: application/json
 ```
 
-## 📝 Notas para el Frontend
+## Notas para el Frontend
 
 ### Formulario de Registro:
 - Campos requeridos: email, contraseña, nombre, tipo_usuario
@@ -225,7 +225,7 @@ Content-Type: application/json
 - Campos requeridos: viaje_id, asientos_reservados
 - El sistema valida automáticamente la disponibilidad
 
-## 🗂️ Estructura de Base de Datos
+## Estructura de Base de Datos
 
 ```sql
 usuarios (id, email, nombre, tipo_usuario, telefono, avatar_url, calificacion_promedio)
@@ -234,18 +234,18 @@ reservas (id, viaje_id, pasajero_id, asientos_reservados, estado)
 calificaciones (id, usuario_calificado_id, usuario_calificador_id, viaje_id, puntuacion, comentario)
 ```
 
-## 🚨 Consideraciones
+## Consideraciones
 
 1. **Autenticación:** Actualmente usa tokens simulados. En producción implementar JWT real.
 2. **Validaciones:** Todos los endpoints incluyen validación de datos.
 3. **Errores:** Siempre retornan mensajes descriptivos en español.
 4. **Fechas:** Usar formato ISO (YYYY-MM-DDTHH:mm:ssZ)
 
-## 📞 Soporte
+## Soporte
 
 Para problemas técnicos contactar al equipo de desarrollo backend.
 
 ---
 
 **Versión:** 1.0.0  
-**Última actualización:** Enero 2024
+**Última actualización:** 29/10/2025
