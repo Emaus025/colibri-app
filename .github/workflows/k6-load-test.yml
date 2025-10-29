@@ -17,5 +17,4 @@ jobs:
         with:
           filename: k6/script.js
           flags: --out cloud
-        env:
-          K6_CLOUD_TOKEN: ${{ secrets.GRAFANA_CLOUD_TOKEN }}
+          token: ${{ secrets.GRAFANA_CLOUD_TOKEN }}
