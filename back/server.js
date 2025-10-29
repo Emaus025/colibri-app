@@ -29,8 +29,8 @@ app.post('/api/auth/login', async (req, res) => {
 
   try {
     const { data: user, error } = await supabase
-      .from('users')
-      .select('id, email, name')
+      .from('usuarios')
+      .select('id, email, name, tipo_usuario')
       .eq('email', email)
       .single();
 
@@ -44,11 +44,78 @@ app.post('/api/auth/login', async (req, res) => {
     res.json({
       success: true,
       token,
-      user: { id: user.id, email: user.email, name: user.name }
+      user: { 
+        id: user.id, 
+        email: user.email, 
+        name: user.name,
+        tipo_usuario: user.tipo_usuario 
+      }
     });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Error en el servidor' });
+  }
+});
+
+// Endpoint de registro
+app.post('/api/auth/register', async (req, res) => {
+  const { email, password, name, tipo_usuario } = req.body;
+
+  if (!email || !password || !name || !tipo_usuario) {
+    return res.status(400).json({ error: 'Todos los campos son requeridos' });
+  }
+
+  // Validar tipo_usuario
+  if (!['conductor', 'cliente'].includes(tipo_usuario)) {
+    return res.status(400).json({ error: 'Tipo de usuario debe ser "conductor" o "cliente"' });
+  }
+
+  try {
+    // Verificar si el usuario ya existe
+    const { data: existingUser } = await supabase
+      .from('usuarios')
+      .select('id')
+      .eq('email', email)
+      .single();
+
+    if (existingUser) {
+      return res.status(409).json({ error: 'El usuario ya existe' });
+    }
+
+    // Crear nuevo usuario
+    const { data: newUser, error } = await supabase
+      .from('usuarios')
+      .insert([{ 
+        email, 
+        name, 
+        tipo_usuario,
+        fecha_registro: new Date().toISOString(),
+        fecha_actualizacion: new Date().toISOString()
+      }])
+      .select('id, email, name, tipo_usuario')
+      .single();
+
+    if (error) {
+      console.error('Error creating user:', error);
+      return res.status(500).json({ error: 'Error al crear el usuario' });
+    }
+
+    // En una app real usarías JWT, aquí usamos un token simple
+    const token = `fake-jwt-token-for-${newUser.id}`;
+
+    res.json({
+      success: true,
+      token,
+      user: { 
+        id: newUser.id, 
+        email: newUser.email, 
+        name: newUser.name,
+        tipo_usuario: newUser.tipo_usuario 
+      }
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error interno del servidor' });
   }
 });
 

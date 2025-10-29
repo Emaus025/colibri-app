@@ -2,10 +2,11 @@ import { ThemedView } from '@/components/themed-view';
 import { ThemedText } from '@/components/themed-text';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useResponsive } from '@/hooks/use-responsive';
-import { ScrollView, TouchableOpacity, View, StyleSheet } from 'react-native';
+import { ScrollView, TouchableOpacity, View, StyleSheet, Alert } from 'react-native';
 import { Image } from 'expo-image';
 import { Colors } from '@/constants/theme';
 import { useColorScheme } from '@/hooks/use-color-scheme';
+import { useAuth } from '@/contexts/auth-context';
 import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 export default function PerfilScreen() {
@@ -13,11 +14,30 @@ export default function PerfilScreen() {
   const { containerMaxWidth, isPhone, gap } = useResponsive();
   const theme = useColorScheme() ?? 'light';
   const colors = Colors[theme];
+  const { user, logout } = useAuth();
 
-  // Datos del usuario (en una app real vendrían de un estado global o API)
+  const handleLogout = () => {
+    Alert.alert(
+      'Cerrar Sesión',
+      '¿Estás seguro de que quieres cerrar sesión?',
+      [
+        {
+          text: 'Cancelar',
+          style: 'cancel',
+        },
+        {
+          text: 'Cerrar Sesión',
+          style: 'destructive',
+          onPress: logout,
+        },
+      ]
+    );
+  };
+
+  // Datos del usuario (ahora usando los datos del contexto)
   const usuario = {
-    nombre: 'María González',
-    email: 'maria.gonzalez@email.com',
+    nombre: user?.name || 'Usuario',
+    email: user?.email || 'email@ejemplo.com',
     telefono: '+34 612 345 678',
     fechaNacimiento: '15/03/1992',
     ciudad: 'Madrid, España',
@@ -227,7 +247,10 @@ export default function PerfilScreen() {
         </ThemedView>
 
         {/* Botón de Cerrar Sesión */}
-        <TouchableOpacity style={[styles.cerrarSesionBoton, { backgroundColor: colors.peligro }]}>
+        <TouchableOpacity 
+          style={[styles.cerrarSesionBoton, { backgroundColor: colors.peligro }]}
+          onPress={handleLogout}
+        >
           <MaterialIcons name="logout" size={20} color={colors.textoContraste} />
           <ThemedText style={[styles.cerrarSesionTexto, { color: colors.textoContraste }]}>
             Cerrar Sesión
