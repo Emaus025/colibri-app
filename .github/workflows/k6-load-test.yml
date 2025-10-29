@@ -4,9 +4,11 @@ on:
   push:
     branches: [ main ]
   workflow_dispatch:
+
 jobs:
   k6-test:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
 
@@ -15,5 +17,4 @@ jobs:
         with:
           filename: k6/script.js
           flags: --out cloud
-        env:
-          K6_CLOUD_TOKEN: ${{ secrets.GRAFANA_CLOUD_TOKEN }}
+          token: ${{ secrets.GRAFANA_CLOUD_TOKEN }}
