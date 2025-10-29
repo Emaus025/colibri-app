@@ -15,7 +15,7 @@ jobs:
       - name: Run K6 load test in Grafana Cloud
         uses: grafana/k6-action@v0.3.0
         env:
-          K6_CLOUD_TOKEN: ${{ secrets.GRAFANA_CLOUD_TOKEN }}
+          K6_CLOUD_TOKEN: ${{ secrets.GRAFANA_CLOUD_TOKEN2 }}
         with:
           filename: k6/script.js
           flags: --out cloud
