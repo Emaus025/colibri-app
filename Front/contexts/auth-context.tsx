@@ -1,142 +1,126 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { authService, usuariosService } from '../services/api';
 
-interface User {
+type Usuario = {
   id: string;
+  nombre: string;
   email: string;
-  name: string;
-}
+  tipo_usuario: 'conductor' | 'pasajero';
+  avatar_url?: string;
+};
 
-interface AuthContextType {
-  user: User | null;
-  isLoading: boolean;
-  login: (email: string, password?: string) => Promise<boolean>;
-  register: (email: string, password: string, name: string) => Promise<boolean>;
+type AuthContextType = {
+  usuario: Usuario | null;
+  loading: boolean;
+  login: (email: string, password: string) => Promise<{ exito: boolean; error?: string }>;
+  register: (datos: { email: string; password: string; nombre: string; tipo_usuario: string }) => 
+    Promise<{ exito: boolean; error?: string }>;
   logout: () => void;
-}
+  actualizarPerfil: (datos: { nombre?: string; telefono?: string; avatar_url?: string }) => 
+    Promise<{ exito: boolean; error?: string }>;
+};
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const API_BASE_URL = 'http://192.168.100.8:3001/api'; // Cambia por tu IP local
-
-export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const [usuario, setUsuario] = useState<Usuario | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    checkAuthState();
+    // Verificar si hay un token guardado
+    const verificarToken = async () => {
+      try {
+        const token = await AsyncStorage.getItem('token');
+        if (token) {
+          // Si hay token, obtener datos del usuario
+          const userData = await usuariosService.getPerfil();
+          setUsuario(userData);
+        }
+      } catch (error) {
+        // Si hay error, limpiar el token
+        await AsyncStorage.removeItem('token');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    verificarToken();
   }, []);
 
-  const checkAuthState = async () => {
+  const login = async (email: string, password: string) => {
     try {
-      const token = await AsyncStorage.getItem('authToken');
-      const userData = await AsyncStorage.getItem('userData');
-      
-      if (token && userData) {
-        setUser(JSON.parse(userData));
-      }
+      const response = await authService.login({ email, password });
+      await AsyncStorage.setItem('token', response.token);
+      setUsuario(response.usuario);
+      return { exito: true };
     } catch (error) {
-      console.error('Error checking auth state:', error);
-    } finally {
-      setIsLoading(false);
+      return { 
+        exito: false, 
+        error: error instanceof Error ? error.message : 'Error al iniciar sesión' 
+      };
     }
   };
 
-  const login = async (email: string, password?: string): Promise<boolean> => {
+  const register = async (datos: { 
+    email: string; 
+    password: string; 
+    nombre: string; 
+    tipo_usuario: string 
+  }) => {
     try {
-      console.log('🔄 Intentando login con:', email);
-      console.log('🌐 URL completa:', `${API_BASE_URL}/auth/login`);
-      
-      const requestBody = { email, password };
-      console.log('📤 Enviando:', requestBody);
-      
-      const response = await fetch(`${API_BASE_URL}/auth/login`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(requestBody),
-      });
-
-      console.log('📡 Response status:', response.status);
-      console.log('📡 Response ok:', response.ok);
-      
-      if (!response.ok) {
-        const errorText = await response.text();
-        console.error('❌ Response error:', errorText);
-        return false;
-      }
-      
-      const data = await response.json();
-      console.log('📦 Response data:', data);
-
-      if (data.success) {
-        await AsyncStorage.setItem('authToken', data.token);
-        await AsyncStorage.setItem('userData', JSON.stringify(data.user));
-        setUser(data.user);
-        console.log('✅ Login exitoso, usuario guardado:', data.user);
-        console.log('✅ Estado user actualizado');
-        return true;
-      } else {
-        console.error('❌ Login failed:', data.error);
-        return false;
-      }
+      const response = await authService.register(datos);
+      await AsyncStorage.setItem('token', response.token);
+      setUsuario(response.usuario);
+      return { exito: true };
     } catch (error) {
-      console.error('🚨 Login error completo:', error);
-      console.error('🚨 Error name:', error.name);
-      console.error('🚨 Error message:', error.message);
-      return false;
-    }
-  };
-
-  const register = async (email: string, password: string, name: string): Promise<boolean> => {
-    try {
-      const response = await fetch(`${API_BASE_URL}/auth/register`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ email, password, name }),
-      });
-
-      const data = await response.json();
-
-      if (data.success) {
-        await AsyncStorage.setItem('authToken', data.token);
-        await AsyncStorage.setItem('userData', JSON.stringify(data.user));
-        setUser(data.user);
-        return true;
-      } else {
-        console.error('Registration failed:', data.error);
-        return false;
-      }
-    } catch (error) {
-      console.error('Registration error:', error);
-      return false;
+      return { 
+        exito: false, 
+        error: error instanceof Error ? error.message : 'Error al registrarse' 
+      };
     }
   };
 
   const logout = async () => {
+    await AsyncStorage.removeItem('token');
+    setUsuario(null);
+  };
+
+  const actualizarPerfil = async (datos: {
+    nombre?: string;
+    telefono?: string;
+    avatar_url?: string;
+  }) => {
     try {
-      await AsyncStorage.removeItem('authToken');
-      await AsyncStorage.removeItem('userData');
-      setUser(null);
+      const usuarioActualizado = await usuariosService.actualizarPerfil(datos);
+      setUsuario(prev => prev ? { ...prev, ...usuarioActualizado } : null);
+      return { exito: true };
     } catch (error) {
-      console.error('Logout error:', error);
+      return { 
+        exito: false, 
+        error: error instanceof Error ? error.message : 'Error al actualizar perfil' 
+      };
     }
   };
 
   return (
-    <AuthContext.Provider value={{ user, isLoading, login, register, logout }}>
+    <AuthContext.Provider value={{ 
+      usuario, 
+      loading, 
+      login, 
+      register, 
+      logout,
+      actualizarPerfil
+    }}>
       {children}
     </AuthContext.Provider>
   );
-}
+};
 
-export function useAuth() {
+export const useAuth = () => {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error('useAuth debe ser usado dentro de un AuthProvider');
   }
   return context;
-}
+};

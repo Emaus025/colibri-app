@@ -16,9 +16,20 @@ const rutasAutenticacion = require('./rutas/autenticacion');
 const rutasViajes = require('./rutas/viajes');
 const rutasReservas = require('./rutas/reservas');
 
-// Middleware
-app.use(helmet());
-app.use(cors());
+// Configuración de CORS
+const corsOptions = {
+  origin: [
+    'http://localhost:19006', // Expo Web
+    'http://localhost:3000',  // Desarrollo web
+    'capacitor://localhost',  // Capacitor
+    'http://localhost'        // General
+  ],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  credentials: true
+};
+
+app.use(cors(corsOptions));
 app.use(express.json());
 
 // Rutas API

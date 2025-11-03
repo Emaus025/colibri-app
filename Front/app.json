@@ -1,11 +1,11 @@
 {
   "expo": {
-    "name": "Front",
-    "slug": "Front",
+    "name": "Colibrí",
+    "slug": "colibri",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
-    "scheme": "front",
+    "scheme": "colibri",
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
@@ -18,12 +18,26 @@
         "backgroundImage": "./assets/images/android-icon-background.png",
         "monochromeImage": "./assets/images/android-icon-monochrome.png"
       },
+      "package": "com.colibri.app",
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false
     },
     "web": {
       "output": "static",
-      "favicon": "./assets/images/favicon.png"
+      "favicon": "./assets/images/favicon.png",
+      "bundler": "metro",
+      "themeColor": "#4285f4",
+      "backgroundColor": "#ffffff",
+      "name": "Colibrí",
+      "shortName": "Colibrí",
+      "description": "Aplicación para compartir viajes",
+      "lang": "es",
+      "scope": "/",
+      "startUrl": "/",
+      "display": "standalone",
+      "orientation": "portrait",
+      "relatedApplications": [],
+      "preferRelatedApplications": false
     },
     "plugins": [
       "expo-router",

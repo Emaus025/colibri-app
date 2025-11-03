@@ -20,6 +20,7 @@ import MaterialIcons from '@expo/vector-icons/MaterialIcons';
 
 export default function LoginScreen() {
   const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const insets = useSafeAreaInsets();
   const theme = useColorScheme() ?? 'light';
@@ -31,13 +32,18 @@ export default function LoginScreen() {
       Alert.alert('Error', 'Por favor ingresa tu email');
       return;
     }
+    
+    if (!password.trim()) {
+      Alert.alert('Error', 'Por favor ingresa tu contraseña');
+      return;
+    }
 
     setIsLoading(true);
-    const success = await login(email.trim());
+    const result = await login(email.trim(), password.trim());
     setIsLoading(false);
 
-    if (!success) {
-      Alert.alert('Error', 'No se pudo iniciar sesión. Verifica tu email.');
+    if (!result.exito) {
+      Alert.alert('Error', result.error || 'No se pudo iniciar sesión. Verifica tus credenciales.');
     }
   };
 
@@ -88,11 +94,32 @@ export default function LoginScreen() {
               />
             </View>
 
+            <View style={styles.inputContainer}>
+              <MaterialIcons name="lock" size={20} color={colors.textoSecundario} style={styles.inputIcon} />
+              <TextInput
+                style={[
+                  styles.input,
+                  {
+                    color: colors.textoPrimario,
+                    backgroundColor: colors.background,
+                    borderColor: colors.borde,
+                  },
+                ]}
+                placeholder="Contraseña"
+                placeholderTextColor={colors.textoSecundario}
+                value={password}
+                onChangeText={setPassword}
+                secureTextEntry
+                autoCapitalize="none"
+                autoComplete="password"
+              />
+            </View>
+
             <TouchableOpacity
               style={[
                 styles.loginButton,
                 { backgroundColor: colors.primario },
-                isLoading && { opacity: 0.7 },
+                isLoading ? { opacity: 0.7 } : null,
               ]}
               onPress={handleLogin}
               disabled={isLoading}
